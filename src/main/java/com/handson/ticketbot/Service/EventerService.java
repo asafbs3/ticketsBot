@@ -6,6 +6,7 @@ import com.handson.ticketbot.repo.NewProductsEventerRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import okhttp3.*;
 import java.io.IOException;
@@ -28,6 +29,16 @@ public class EventerService {
             getProduct(); // Fetch data and save to database
         } catch (IOException e) {
             System.err.println("Failed to fetch initial data: " + e.getMessage());
+        }
+    }
+
+    // Scheduled API call to refresh data every hour (3,600,000 ms)
+    @Scheduled(fixedRate = 3600000)
+    public void updateShowsFromAPI() throws IOException {
+        try {
+            getProduct(); // Refresh data from API periodically
+        } catch (IOException e){
+            System.err.println("Failed to refresh data " + e.getMessage());
         }
     }
 

@@ -6,6 +6,7 @@ import com.handson.ticketbot.repo.NewProductsBarbyRepo;
 import okhttp3.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.context.event.EventListener;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +29,16 @@ public class BarbyService {
             getProduct(); // Fetch data and save to database
         } catch (IOException e) {
             System.err.println("Failed to fetch initial data: " + e.getMessage());
+        }
+    }
+
+    // Scheduled API call to refresh data every hour (3,600,000 ms)
+    @Scheduled(fixedRate = 3600000)
+    public void updateShowsFromAPI() throws IOException {
+        try {
+            getProduct(); // Refresh data from API periodically
+        } catch (IOException e){
+            System.err.println("Failed to refresh data " + e.getMessage());
         }
     }
     public String searchProduct(String keyword) throws IOException {

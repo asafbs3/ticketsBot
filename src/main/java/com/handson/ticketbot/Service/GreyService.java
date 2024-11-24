@@ -5,6 +5,7 @@ import okhttp3.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -34,6 +35,16 @@ public class GreyService {
         }
     }
 
+    // Scheduled API call to refresh data every hour (3,600,000 ms)
+    @Scheduled(fixedRate = 3600000)
+    public void updateShowsFromAPI() throws IOException {
+        try {
+            parseProductHtml(getProductHtml()); // Refresh data from API periodically
+        } catch (IOException e){
+            System.err.println("Failed to refresh data " + e.getMessage());
+        }
+    }
+
     public String searchProducts(String keyword) throws IOException {
         List<NewProductGrey> shows = newProductsGreyRepo.findAll();
         if (shows.isEmpty())
@@ -56,7 +67,6 @@ public class GreyService {
 
         Matcher matcherLink = LINK_PATTERN.matcher(html);
         Matcher matcherProduct = PRODUCT_PATTERN.matcher(html);
-
         newProductsGreyRepo.deleteAll();
         while (matcherLink.find() && matcherProduct.find()) {
             String productUrl = matcherLink.group(1);
